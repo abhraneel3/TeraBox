@@ -15,13 +15,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Install youtube-dl
-        run: sudo apt-get install -y youtube-dl
+      - name: Install yt-dlp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          sudo pip3 install yt-dlp
 
       - name: Download Twitter Video
         run: |
           video_url="${{ github.event.inputs.video_url }}"
-          youtube-dl $video_url -o "twitter_video.mp4"
+          yt-dlp $video_url -o "twitter_video.mp4"
           echo "::set-output name=download_url::https://<GITHUB_REPO_RAW_URL>/twitter_video.mp4"
 
       - name: Upload Video to GitHub Artifacts
