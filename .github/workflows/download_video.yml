@@ -15,6 +15,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - name: Install youtube-dl
+        run: sudo apt-get install -y youtube-dl
+
       - name: Download Twitter Video
         run: |
           video_url="${{ github.event.inputs.video_url }}"
@@ -22,7 +25,7 @@ jobs:
           echo "::set-output name=download_url::https://<GITHUB_REPO_RAW_URL>/twitter_video.mp4"
 
       - name: Upload Video to GitHub Artifacts
-        uses: actions/upload-artifact@v3  # Updated to version 3
+        uses: actions/upload-artifact@v3
         with:
           name: twitter_video.mp4
           path: twitter_video.mp4
