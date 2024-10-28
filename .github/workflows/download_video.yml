@@ -1,34 +1,25 @@
-name: Download Twitter Video
+name: Run PHP Script
 
 on:
   workflow_dispatch:
     inputs:
       video_url:
-        description: "URL of the Twitter video to download"
+        description: "URL of the Twitter video"
         required: true
         type: string
 
 jobs:
-  download:
+  run-php-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Check out the repository
         uses: actions/checkout@v2
 
-      - name: Install yt-dlp
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
-          sudo pip3 install yt-dlp
-
-      - name: Download Twitter Video
-        run: |
-          video_url="${{ github.event.inputs.video_url }}"
-          yt-dlp $video_url -o "twitter_video.mp4"
-          echo "::set-output name=download_url::https://<GITHUB_REPO_RAW_URL>/twitter_video.mp4"
-
-      - name: Upload Video to GitHub Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
         with:
-          name: twitter_video.mp4
-          path: twitter_video.mp4
+          php-version: '8.0'  # Use the desired PHP version
+
+      - name: Run PHP Script
+        run: |
+          php process.php "${{ github.event.inputs.video_url }}"
