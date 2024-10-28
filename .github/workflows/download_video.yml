@@ -1,25 +1,55 @@
-name: Run PHP Script
+name: Download Twitter Video
 
 on:
   workflow_dispatch:
     inputs:
       video_url:
-        description: "URL of the Twitter video"
+        description: "URL of the Twitter video to download"
         required: true
         type: string
 
 jobs:
-  run-php-script:
+  download:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository
+      - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.0'  # Use the desired PHP version
-
-      - name: Run PHP Script
+      - name: Install yt-dlp
         run: |
-          php process.php "${{ github.event.inputs.video_url }}"
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          sudo pip3 install yt-dlp
+
+      - name: Download Twitter Video
+        run: |
+          video_url="${{ github.event.inputs.video_url }}"
+          yt-dlp $video_url -o "twitter_video.mp4"
+
+      - name: Install PHP
+        run: |
+          sudo apt-get install -y php
+
+      - name: Save Video with PHP
+        run: |
+          echo "<?php
+          // Define the source and destination file paths
+          \$source = 'twitter_video.mp4';
+          \$destination = 'your-repo-path/twitter_video.mp4'; // Adjust the path as needed
+
+          // Check if the source file exists
+          if (file_exists(\$source)) {
+              // Move the file to the desired location
+              rename(\$source, \$destination);
+              echo 'Video moved successfully to ' . \$destination;
+          } else {
+              echo 'Source file does not exist.';
+          }
+          ?>" > save_video.php
+
+      - name: Execute PHP script
+        run: php save_video.php
+
+      - name: Clean Up
+        run: |
+          rm save_video.php
